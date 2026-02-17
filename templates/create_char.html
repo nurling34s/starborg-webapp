@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>NEW REBEL</h2>
+<form method="post">
+    <label>Name:</label>
+    <input type="text" name="name" placeholder="Name or Callsign" required>
+    <br><br>
+    <label>Class:</label>
+    <select name="char_class">
+        <option value="Bot">Bot</option>
+        <option value="Bounty Hunter">Bounty Hunter</option>
+        <option value="Magi Knight">Magi Knight</option>
+        <option value="Smuggler">Smuggler</option>
+        <option value="Technician">Technician</option>
+        <option value="Youngster">Youngster</option>
+    </select>
+    <br><br>
+    <button type="submit" class="btn">INITIALIZE</button>
+</form>
+{% endblock %}

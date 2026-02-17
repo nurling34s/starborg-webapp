@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Привет, {{ user.username }}. <a href="/logout">Выйти</a></p>
+
+<h3>YOUR REBELS:</h3>
+<ul>
+    {% for char in user.characters %}
+        <li style="margin-bottom: 10px;">
+            <a href="/sheet/{{ char.id }}" style="font-size: 1.2em; font-weight: bold;">
+                {{ char.name }}
+            </a>
+            <span style="color: #888">({{ char.char_class }})</span>
+
+            <a href="/delete_char/{{ char.id }}"
+               style="color: red; font-size: 0.8em; margin-left: 10px; text-decoration: none; border: 1px solid red; padding: 2px 5px;"
+               onclick="return confirm('Удалить этого персонажа навсегда?');">
+               X DELETE
+            </a>
+        </li>
+    {% else %}
+        <li>Нет персонажей. Создай первого!</li>
+    {% endfor %}
+</ul>
+
+<hr>
+<a href="/create_char" class="btn">GENERATE NEW REBEL</a>
+{% endblock %}
