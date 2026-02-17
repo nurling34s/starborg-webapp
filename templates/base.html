@@ -2,24 +2,68 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Star Borg Rebel App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Star Borg Rebel App</title>
     <style>
-        body { background-color: #eee; color: #4372e0; font-family: "Courier New", monospace; padding: 20px; }
-        a { color: #e68d09; }
-        input, textarea, select { background: #eee; color: #e68d09; border: 1px solid #444; padding: 5px; }
-        .stat-box { border: 1px solid #e68d09; padding: 10px; margin: 5px; display: inline-block; width: 100px; text-align: center; }
-        .btn { background: #e68d09; color: #000; padding: 10px; border: none; cursor: pointer; font-weight: bold; }
-        .dice-result { font-size: 2em; color: #ff0; font-weight: bold; }
+        /* ГЛОБАЛЬНЫЕ СТИЛИ */
+        body { 
+            background-color: #eee; 
+            color: #222; 
+            font-family: "Courier New", monospace; 
+            margin: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+        
+        /* Контент растягивается, чтобы прижать футер вниз */
+        .content-wrapper {
+            flex: 1;
+            padding: 20px;
+        }
+
+        a { color: #4372e0; text-decoration: none; font-weight: bold; }
+        a:hover { color: #e68d09; }
+        
+        input, textarea, select { 
+            background: #eee; color: #4372e0; border: 2px solid #e68d09; 
+            padding: 5px; font-family: "Courier New", monospace; font-weight: bold;
+            max-width: 100%; box-sizing: border-box; /* Чтобы не вылезали на мобилках */
+        }
+        
+        .btn { 
+            background: #4372e0; color: #eee; padding: 10px 20px; 
+            border: 2px solid #222; cursor: pointer; font-weight: bold; text-transform: uppercase;
+        }
+        .btn:hover { background: #e68d09; color: #222; }
+
+        h1, h2, h3 { color: #e68d09; text-transform: uppercase; }
+        hr { border: 0; border-top: 2px solid #4372e0; }
+
+        /* Оранжевый футер */
+        .site-footer {
+            background: #e68d09;
+            color: #222;
+            text-align: center;
+            padding: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border-top: 2px solid #222;
+        }
     </style>
 </head>
 <body>
-    <h1>STAR BORG // REBEL TRACKER</h1>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div style="color: #e68d09; border: 1px solid yellow; padding: 5px;">{{ messages[0] }}</div>
-        {% endif %}
-    {% endwith %}
+    <div class="content-wrapper">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="background: #e68d09; color: #222; padding: 10px; margin-bottom: 10px; font-weight: bold;">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
 
-    {% block content %}{% endblock %}
+    <footer class="site-footer">
+        STAR BORG SYSTEM // V.1.0
+    </footer>
 </body>
 </html>
