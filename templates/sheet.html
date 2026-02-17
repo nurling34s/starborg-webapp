@@ -2,99 +2,109 @@
 
 {% block content %}
 <style>
-    /* Убираем отступы у body, чтобы интерфейс был на весь экран */
-    body { 
-        margin: 0; padding: 0; overflow: hidden; 
-        display: flex; flex-direction: column; height: 100vh;
-        background: #eee;
-    }
+    /* ПЕРЕОПРЕДЕЛЯЕМ BODY ДЛЯ ЭТОЙ СТРАНИЦЫ (чтобы убрать отступы base.html) */
+    /* Важно: используем !important, чтобы перебить стили base.html */
+    .content-wrapper { padding: 0 !important; display: flex; flex-direction: column; height: 100vh; }
     
-    /* Верхняя панель навигации (небольшая) */
+    /* Верхняя панель */
     .top-nav {
-        height: 40px; background: #eee; border-bottom: 4px solid #e68d09;
-        padding: 5px 20px; display: flex; align-items: center; justify-content: space-between;
+        height: 50px; background: #eee; border-bottom: 4px solid #e68d09;
+        padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+        flex-shrink: 0; /* Не сжиматься */
     }
 
-    /* ОСНОВНОЙ КОНТЕЙНЕР (3 КОЛОНКИ) */
+    /* ОСНОВНОЙ КОНТЕЙНЕР */
     .main-layout {
         display: flex; 
-        flex-grow: 1; /* Занимает всё оставшееся место */
-        height: calc(100vh - 50px); /* Высота минус навбар */
+        flex-grow: 1; 
+        overflow: hidden; /* Скрываем общий скролл, скроллим блоки отдельно */
     }
 
-    /* 1. ЛЕВАЯ КОЛОНКА: ЛИСТ (33%) */
+    /* 1. ЛЕВАЯ КОЛОНКА: ЛИСТ */
     .col-sheet {
-        width: 33%; 
-        min-width: 320px;
+        width: 33%; min-width: 320px;
         background: #eee; 
         border-right: 4px solid #e68d09;
-        overflow-y: auto; /* Прокрутка только здесь */
+        overflow-y: auto; 
         padding: 20px;
         box-sizing: border-box;
     }
 
-/* 2. ЦЕНТРАЛЬНАЯ КОЛОНКА: АРТ */
+    /* 2. ЦЕНТР: АРТ */
     .col-art {
         flex-grow: 1;
         background-image: url('/static/bg.jpg');
-        
-        /* ИЗМЕНЕНИЕ ЗДЕСЬ: */
-        background-size: contain;   /* Было cover. Contain показывает картинку целиком */
-        background-repeat: no-repeat; /* Чтобы не повторялась, если места много */
-        background-position: center;  /* Центрируем */
-        background-color: #eee;       /* Фон под картинкой (черный космос) */
-        
+        background-size: contain; 
+        background-repeat: no-repeat; 
+        background-position: center; 
+        background-color: #eee;
         position: relative;
     }
-    /* Затемнение поверх картинки для стиля */
-    .col-art::after {
-        content: ""; position: absolute; top:0; left:0; right:0; bottom:0;
-        background: rgba(0, 255, 0, 0.1); /* Легкий зеленый тинт */
-        pointer-events: none;
-        background: radial-gradient(circle, transparent 50%, #000 150%);
-    }
 
-    /* 3. ПРАВАЯ КОЛОНКА: ЛОГ (16%) */
+    /* 3. ПРАВАЯ КОЛОНКА: ЛОГ */
     .col-log {
-        width: 17%; /* ~1/6 экрана */
-        min-width: 200px;
+        width: 20%; min-width: 250px;
         background: #eee;
         border-left: 4px solid #e68d09;
         display: flex; flex-direction: column;
     }
 
-    /* Внутренности чата */
-    .log-header {
-        background: #eee; color: #4372e0; font-weight: bold; text-align: center; padding: 5px;
-    }
-    #log-container {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding: 10px;
-        font-family: "Courier New", monospace;
-        font-size: 0.85em;
-        display: flex; flex-direction: column-reverse; /* Новые сообщения снизу (или сверху, как удобнее) */
-    }
-    .chat-msg { 
-        margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 2px;
-        /*animation: fadeIn 0.3s;*/
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+    /* МОБИЛЬНАЯ ВЕРСИЯ (Media Query) */
+    @media (max-width: 768px) {
+        .content-wrapper { height: auto; display: block; } /* Разрешаем скролл страницы */
+        .main-layout { 
+            flex-direction: column; /* Элементы друг под другом */
+            height: auto; 
+            overflow: visible;
+        }
 
-    /* Стили элементов формы */
+        /* Лист занимает всю ширину */
+        .col-sheet { 
+            width: 100%; 
+            min-width: 0;
+            border-right: none; 
+            border-bottom: 4px solid #e68d09;
+            height: auto;
+            padding: 10px;
+        }
+
+        /* Арт становится узким баннером сверху */
+        .col-art { 
+            width: 100%; 
+            height: 150px; /* Фиксированная высота */
+            flex-grow: 0;
+            background-size: cover; /* На телефоне лучше cover, чтобы заполнить узкую полосу */
+            border-bottom: 4px solid #e68d09;
+            order: -1; /* Ставим арт выше листа */
+        }
+
+        /* Лог ставим в самый низ, фиксированной высоты */
+        .col-log { 
+            width: 100%; 
+            height: 250px; 
+            border-left: none; 
+            border-top: 4px solid #e68d09;
+        }
+        
+        /* Увеличиваем кнопки, чтобы пальцем попадать */
+        .stat-btn, .btn, button { padding: 15px !important; font-size: 1em !important; }
+        
+        /* Скрываем футер base.html на мобилке в этом view, если он мешает, или оставляем */
+    }
+
+    /* Внутренности чата и листа (общие стили) */
+    .log-header { background: #eee; color: #4372e0; font-weight: bold; text-align: center; padding: 5px; border-bottom: 2px solid #e68d09; }
+    #log-container { flex-grow: 1; overflow-y: auto; padding: 10px; font-size: 0.85em; display: flex; flex-direction: column-reverse; }
+    .chat-msg { margin-bottom: 8px; border-bottom: 1px dashed #444; padding-bottom: 2px; }
+
     .stat-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .stat-btn { flex-grow: 1; margin-left: 10px; background: #4372e0; color: #222; border: 2px solid #222; cursor: pointer; }
+    .stat-btn { flex-grow: 1; margin-left: 10px; background: #4372e0; color: #eee; border: 2px solid #222; cursor: pointer; }
     .stat-btn:hover { background: #e68d09; color: #222; }
-    input { background: #eee; color: #4372e0; border: 2px solid #e68d09; padding: 5px; }
-    textarea { width: 100%; background: #eee; color: #4372e0; border: 2px solid #e68d09; }
-    
 </style>
 
 <div class="top-nav">
     <div>STAR BORG // <span style="color:#e68d09">{{ char.name }}</span></div>
-    <div>
-        <a href="/dashboard" style="color:#eee; text-decoration:none;">[ DASHBOARD ]</a>
-    </div>
+    <div><a href="/dashboard" style="color:#222; text-decoration:none;">[ EXIT ]</a></div>
 </div>
 
 <div class="main-layout">
@@ -105,33 +115,33 @@
                 <input type="text" name="name" value="{{ char.name }}" style="width: 60%; font-weight:bold; font-size: 1.1em;">
                 <select name="char_class" style="width: 35%;">
                     <option value="{{ char.char_class }}">{{ char.char_class }}</option>
-                    </select>
+                </select>
             </div>
             
-            <hr style="border-color: #333;">
+            <hr>
 
             <div class="stat-row">
                 <input type="number" id="agi" name="agility" value="{{ char.agility }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'agi', 'AGILITY')">AGILITY (DR12)</button>
+                <button type="button" class="stat-btn" onclick="rollStat('d20', 'agi', 'AGILITY')">AGILITY</button>
             </div>
             <div class="stat-row">
                 <input type="number" id="knw" name="knowledge" value="{{ char.knowledge }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'knw', 'KNOWLEDGE')">KNOWLEDGE (DR12)</button>
+                <button type="button" class="stat-btn" onclick="rollStat('d20', 'knw', 'KNOWLEDGE')">KNOWLEDGE</button>
             </div>
             <div class="stat-row">
                 <input type="number" id="prs" name="presence" value="{{ char.presence }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'prs', 'PRESENCE')">PRESENCE (DR12)</button>
+                <button type="button" class="stat-btn" onclick="rollStat('d20', 'prs', 'PRESENCE')">PRESENCE</button>
             </div>
             <div class="stat-row">
                 <input type="number" id="str" name="strength" value="{{ char.strength }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'str', 'STRENGTH')">STRENGTH (DR12)</button>
+                <button type="button" class="stat-btn" onclick="rollStat('d20', 'str', 'STRENGTH')">STRENGTH</button>
             </div>
 
-            <hr style="border-color: #333;">
+            <hr>
             
-            <div style="display:flex; justify-content: space-between;">
+            <div style="display:flex; justify-content: space-between; margin-bottom:10px;">
                 <div style="text-align:center;">
-                    <label style="font-size:0.8em; color:#4372e0;">HP (Curr/Max)</label><br>
+                    <label style="font-size:0.8em; color:#4372e0;">HP</label><br>
                     <input type="number" name="hp_current" value="{{ char.hp_current }}" style="width:40px;"> / 
                     <input type="number" name="hp_max" value="{{ char.hp_max }}" style="width:40px;">
                 </div>
@@ -144,41 +154,38 @@
                 </div>
             </div>
 
-            <hr style="border-color: #333;">
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
-                <button type="button" onclick="rollSimple('d4')">d4</button>
-                <button type="button" onclick="rollSimple('d6')">d6</button>
-                <button type="button" onclick="rollSimple('d8')">d8</button>
-                <button type="button" onclick="rollSimple('d10')">d10</button>
-                <button type="button" onclick="rollSimple('d12')">d12</button>
-                <button type="button" onclick="rollSimple('d20')">d20</button>
+            <hr>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d4')">d4</button>
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d6')">d6</button>
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d8')">d8</button>
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d10')">d10</button>
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d12')">d12</button>
+                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d20')">d20</button>
             </div>
 
             <br>
             <label style="color:#4372e0;">EQUIPMENT</label>
-            <textarea name="equipment" rows="6">{{ char.equipment }}</textarea>
+            <textarea name="equipment" rows="4">{{ char.equipment }}</textarea>
             
             <br><br>
-            <label style="color:#4372e0;">NOTES / ABILITIES</label>
-            <textarea name="notes" rows="4">{{ char.notes }}</textarea>
+            <label style="color:#4372e0;">NOTES</label>
+            <textarea name="notes" rows="3">{{ char.notes }}</textarea>
 
             <br><br>
-            <button type="submit" class="btn" style="width:100%; padding: 15px; background: #4372e0; color:#222; font-weight:bold;">SAVE CHANGES</button>
+            <button type="submit" class="btn" style="width:100%; padding: 15px; background: #e68d09; color:#222;">SAVE CHANGES</button>
         </form>
     </div>
 
     <div class="col-art">
-        <div style="position: absolute; bottom: 20px; left: 20px; background: #000; padding: 5px; border: 1px solid #e68d09;">
-            SECTOR: 05-B // STATUS: ROGUE
+        <div style="position: absolute; bottom: 10px; left: 10px; background: #eee; padding: 2px 5px; border: 1px solid #e68d09; font-size: 0.7em;">
+            SECTOR: 05-B
         </div>
     </div>
 
     <div class="col-log">
         <div class="log-header">COMMS LOG</div>
-        <div id="log-container">
-            Loading stream...
-        </div>
+        <div id="log-container">Loading...</div>
     </div>
 
 </div>
@@ -189,11 +196,9 @@
         const mod = parseInt(val) || 0;
         sendRoll(dice, mod, statName);
     }
-
     async function rollSimple(dice) {
         sendRoll(dice, 0, 'Dice Check');
     }
-
     async function sendRoll(dice, modifier, reason) {
         await fetch('/roll_api', {
             method: 'POST',
@@ -202,26 +207,17 @@
         });
         updateLog();
     }
-
     async function updateLog() {
         const res = await fetch('/get_logs');
         const logs = await res.json();
         const container = document.getElementById('log-container');
-        
         let html = '';
         logs.forEach(l => {
-            // Красим результат в желтый для видимости
             const cleanMsg = l.msg.replace(/(\= \d+)/, '<span style="color:#e68d09; font-weight:bold;">$1</span>');
-            
-            html += `<div class="chat-msg">
-                <span style="color:#666; font-size:0.8em;">${l.time}</span> 
-                <span class="chat-user" style="color:#4372e0;">${l.user}</span><br> 
-                ${cleanMsg}
-            </div>`;
+            html += `<div class="chat-msg"><span style="color:#888; font-size:0.8em;">${l.time}</span> <span class="chat-user" style="color:#4372e0;">${l.user}</span><br>${cleanMsg}</div>`;
         });
         container.innerHTML = html;
     }
-
     setInterval(updateLog, 3000);
     updateLog();
 </script>
