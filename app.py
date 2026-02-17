@@ -52,6 +52,11 @@ class GameLog(db.Model):
     username = db.Column(db.String(150))
     message = db.Column(db.String(500))
 
+# --- АВТОМАТИЧЕСКОЕ СОЗДАНИЕ ТАБЛИЦ ---
+# Этот блок заменяет Shell. Он сработает прямо на сервере Render.
+with app.app_context():
+    db.create_all()
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
