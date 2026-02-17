@@ -2,104 +2,116 @@
 
 {% block content %}
 <style>
-    /* ПЕРЕОПРЕДЕЛЯЕМ BODY ДЛЯ ЭТОЙ СТРАНИЦЫ (чтобы убрать отступы base.html) */
-    /* Важно: используем !important, чтобы перебить стили base.html */
+    /* --- ОБЩАЯ РАЗМЕТКА --- */
     .content-wrapper { padding: 0 !important; display: flex; flex-direction: column; height: 100vh; }
     
-    /* Верхняя панель */
     .top-nav {
         height: 50px; background: #eee; border-bottom: 4px solid #e68d09;
         padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
-        flex-shrink: 0; /* Не сжиматься */
+        flex-shrink: 0;
     }
 
-    /* ОСНОВНОЙ КОНТЕЙНЕР */
     .main-layout {
-        display: flex; 
-        flex-grow: 1; 
-        overflow: hidden; /* Скрываем общий скролл, скроллим блоки отдельно */
+        display: flex; flex-grow: 1; overflow: hidden;
     }
 
-    /* 1. ЛЕВАЯ КОЛОНКА: ЛИСТ */
+    /* --- ЛЕВАЯ КОЛОНКА (ЛИСТ) --- */
     .col-sheet {
-        width: 33%; min-width: 320px;
-        background: #eee; 
-        border-right: 4px solid #e68d09;
-        overflow-y: auto; 
-        padding: 20px;
-        box-sizing: border-box;
+        width: 40%; /* Чуть шире, чтобы вместить 2 колонки текста */
+        min-width: 400px;
+        background: #eee; border-right: 4px solid #e68d09;
+        display: flex; flex-direction: column; /* Вертикальный стек внутри */
+        padding: 15px; box-sizing: border-box;
+        overflow-y: auto;
     }
 
-    /* 2. ЦЕНТР: АРТ */
+    /* Секция: Имя и Класс */
+    .section-header { margin-bottom: 15px; }
+
+    /* Секция: Характеристики и HP (Сплит 50/50) */
+    .section-stats {
+        display: flex; gap: 15px; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 15px;
+    }
+    .sub-col-stats { width: 50%; } /* Левая часть: Характеристики */
+    .sub-col-vitals { width: 50%; display: flex; flex-direction: column; justify-content: space-around; } /* Правая часть: HP */
+
+    /* Стиль строки характеристики */
+    .stat-row { display: flex; align-items: center; margin-bottom: 5px; }
+    .stat-input { width: 35px; text-align: center; margin-right: 5px; }
+    .stat-btn { 
+        flex-grow: 1; font-size: 0.8em; padding: 4px; 
+        background: #4372e0; color: #eee; border: 1px solid #222; cursor: pointer; 
+    }
+    .stat-btn:hover { background: #e68d09; color: #222; }
+
+    /* Секция: Текст (Снаряжение и Заметки) */
+    .section-text {
+        display: flex; gap: 15px; flex-grow: 1; /* Занимает всё оставшееся место */
+    }
+    .text-col { 
+        width: 50%; display: flex; flex-direction: column; 
+    }
+    .text-area-fill {
+        flex-grow: 1; /* Растягивается до низа */
+        resize: none; /* Запрет ручного ресайза, т.к. оно авто-размерное */
+        width: 100%;
+    }
+    .save-btn-wrapper { margin-top: 15px; flex-shrink: 0; }
+
+    /* --- ЦЕНТР (АРТ) --- */
     .col-art {
         flex-grow: 1;
         background-image: url('/static/bg.jpg');
-        background-size: contain; 
-        background-repeat: no-repeat; 
-        background-position: center; 
-        background-color: #eee;
-        position: relative;
+        background-size: contain; background-repeat: no-repeat; background-position: center; 
+        background-color: #eee; position: relative;
     }
 
-    /* 3. ПРАВАЯ КОЛОНКА: ЛОГ */
+    /* --- ПРАВАЯ КОЛОНКА (ЛОГ + КУБЫ) --- */
     .col-log {
-        width: 20%; min-width: 250px;
-        background: #eee;
-        border-left: 4px solid #e68d09;
+        width: 20%; min-width: 220px;
+        background: #eee; border-left: 4px solid #e68d09;
         display: flex; flex-direction: column;
     }
 
-    /* МОБИЛЬНАЯ ВЕРСИЯ (Media Query) */
-    @media (max-width: 768px) {
-        .content-wrapper { height: auto; display: block; } /* Разрешаем скролл страницы */
-        .main-layout { 
-            flex-direction: column; /* Элементы друг под другом */
-            height: auto; 
-            overflow: visible;
-        }
-
-        /* Лист занимает всю ширину */
-        .col-sheet { 
-            width: 100%; 
-            min-width: 0;
-            border-right: none; 
-            border-bottom: 4px solid #e68d09;
-            height: auto;
-            padding: 10px;
-        }
-
-        /* Арт становится узким баннером сверху */
-        .col-art { 
-            width: 100%; 
-            height: 150px; /* Фиксированная высота */
-            flex-grow: 0;
-            background-size: cover; /* На телефоне лучше cover, чтобы заполнить узкую полосу */
-            border-bottom: 4px solid #e68d09;
-            order: -1; /* Ставим арт выше листа */
-        }
-
-        /* Лог ставим в самый низ, фиксированной высоты */
-        .col-log { 
-            width: 100%; 
-            height: 250px; 
-            border-left: none; 
-            border-top: 4px solid #e68d09;
-        }
-        
-        /* Увеличиваем кнопки, чтобы пальцем попадать */
-        .stat-btn, .btn, button { padding: 15px !important; font-size: 1em !important; }
-        
-        /* Скрываем футер base.html на мобилке в этом view, если он мешает, или оставляем */
+    .log-header { background: #eee; color: #4372e0; font-weight: bold; text-align: center; padding: 5px; border-bottom: 2px solid #e68d09; flex-shrink: 0;}
+    
+    #log-container { 
+        flex-grow: 1; overflow-y: auto; padding: 10px; 
+        font-size: 0.85em; display: flex; flex-direction: column-reverse; 
     }
 
-    /* Внутренности чата и листа (общие стили) */
-    .log-header { background: #eee; color: #4372e0; font-weight: bold; text-align: center; padding: 5px; border-bottom: 2px solid #e68d09; }
-    #log-container { flex-grow: 1; overflow-y: auto; padding: 10px; font-size: 0.85em; display: flex; flex-direction: column-reverse; }
-    .chat-msg { margin-bottom: 8px; border-bottom: 1px dashed #444; padding-bottom: 2px; }
+    /* Панель кубиков внизу справа */
+    .dice-panel {
+        height: 120px; /* Фиксированная высота */
+        border-top: 4px solid #e68d09;
+        padding: 5px;
+        background: #ddd;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 в ряд */
+        grid-template-rows: repeat(2, 1fr);    /* 2 ряда */
+        gap: 4px;
+        flex-shrink: 0;
+    }
+    .dice-btn-small {
+        background: #222; color: #e68d09; border: 1px solid #4372e0;
+        font-weight: bold; cursor: pointer; font-size: 0.9em;
+    }
+    .dice-btn-small:hover { background: #e68d09; color: #222; }
 
-    .stat-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .stat-btn { flex-grow: 1; margin-left: 10px; background: #4372e0; color: #eee; border: 2px solid #222; cursor: pointer; }
-    .stat-btn:hover { background: #e68d09; color: #222; }
+    /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+    @media (max-width: 768px) {
+        .content-wrapper { display: block; height: auto; overflow: visible; }
+        .main-layout { flex-direction: column; overflow: visible; }
+        
+        .col-sheet { width: 100%; min-width: 0; border-right: none; height: auto; }
+        .section-stats { flex-direction: row; } /* На мобилке оставляем рядом, если влезает, или column */
+        .section-text { flex-direction: column; height: auto; } /* Текстовые поля друг под другом */
+        .text-area-fill { height: 100px; } /* Фиксированная высота на мобилке */
+
+        .col-art { width: 100%; height: 150px; order: -1; border-bottom: 4px solid #e68d09; }
+        
+        .col-log { width: 100%; height: 350px; border-left: none; border-top: 4px solid #e68d09; }
+    }
 </style>
 
 <div class="top-nav">
@@ -110,70 +122,72 @@
 <div class="main-layout">
 
     <div class="col-sheet">
-        <form method="post">
-            <div style="display:flex; gap:10px;">
+        <form method="post" style="display:flex; flex-direction: column; height: 100%;">
+            
+            <div class="section-header" style="display:flex; gap:10px;">
                 <input type="text" name="name" value="{{ char.name }}" style="width: 60%; font-weight:bold; font-size: 1.1em;">
                 <select name="char_class" style="width: 35%;">
                     <option value="{{ char.char_class }}">{{ char.char_class }}</option>
                 </select>
             </div>
-            
-            <hr>
 
-            <div class="stat-row">
-                <input type="number" id="agi" name="agility" value="{{ char.agility }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'agi', 'AGILITY')">AGILITY</button>
-            </div>
-            <div class="stat-row">
-                <input type="number" id="knw" name="knowledge" value="{{ char.knowledge }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'knw', 'KNOWLEDGE')">KNOWLEDGE</button>
-            </div>
-            <div class="stat-row">
-                <input type="number" id="prs" name="presence" value="{{ char.presence }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'prs', 'PRESENCE')">PRESENCE</button>
-            </div>
-            <div class="stat-row">
-                <input type="number" id="str" name="strength" value="{{ char.strength }}" style="width: 40px;">
-                <button type="button" class="stat-btn" onclick="rollStat('d20', 'str', 'STRENGTH')">STRENGTH</button>
-            </div>
-
-            <hr>
-            
-            <div style="display:flex; justify-content: space-between; margin-bottom:10px;">
-                <div style="text-align:center;">
-                    <label style="font-size:0.8em; color:#4372e0;">HP</label><br>
-                    <input type="number" name="hp_current" value="{{ char.hp_current }}" style="width:40px;"> / 
-                    <input type="number" name="hp_max" value="{{ char.hp_max }}" style="width:40px;">
+            <div class="section-stats">
+                <div class="sub-col-stats">
+                    <label style="font-size:0.7em; color:#888; display:block; margin-bottom:5px;">TESTS (D20 + STAT)</label>
+                    
+                    <div class="stat-row">
+                        <input type="number" id="agi" name="agility" value="{{ char.agility }}" class="stat-input">
+                        <button type="button" class="stat-btn" onclick="rollStat('d20', 'agi', 'AGILITY')">AGILITY</button>
+                    </div>
+                    <div class="stat-row">
+                        <input type="number" id="knw" name="knowledge" value="{{ char.knowledge }}" class="stat-input">
+                        <button type="button" class="stat-btn" onclick="rollStat('d20', 'knw', 'KNOWLEDGE')">KNOWLEDGE</button>
+                    </div>
+                    <div class="stat-row">
+                        <input type="number" id="prs" name="presence" value="{{ char.presence }}" class="stat-input">
+                        <button type="button" class="stat-btn" onclick="rollStat('d20', 'prs', 'PRESENCE')">PRESENCE</button>
+                    </div>
+                    <div class="stat-row">
+                        <input type="number" id="str" name="strength" value="{{ char.strength }}" class="stat-input">
+                        <button type="button" class="stat-btn" onclick="rollStat('d20', 'str', 'STRENGTH')">STRENGTH</button>
+                    </div>
                 </div>
-                <div style="text-align:center;">
-                    <label style="font-size:0.8em; color:#4372e0;">DESTINY</label><br>
-                    <input type="number" name="destiny_points" value="{{ char.destiny_points }}" style="width:40px;">
-                </div>
-                <div style="text-align:center; padding-top: 15px;">
-                    <label><input type="checkbox" name="bits" {% if char.bits %}checked{% endif %}> BITS</label>
+
+                <div class="sub-col-vitals">
+                    <div>
+                        <label style="font-size:0.8em; color:#4372e0;">HP (CURR / MAX)</label><br>
+                        <div style="display:flex; gap:5px;">
+                            <input type="number" name="hp_current" value="{{ char.hp_current }}" style="width:45%; text-align:center;">
+                            <input type="number" name="hp_max" value="{{ char.hp_max }}" style="width:45%; text-align:center;">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8em; color:#4372e0;">DESTINY POINTS</label><br>
+                        <input type="number" name="destiny_points" value="{{ char.destiny_points }}" style="width:100%; text-align:center;">
+                    </div>
+                    <div>
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:5px; font-weight:bold; color:#e68d09;">
+                            <input type="checkbox" name="bits" {% if char.bits %}checked{% endif %}> 
+                            HAS BITS
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <hr>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d4')">d4</button>
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d6')">d6</button>
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d8')">d8</button>
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d10')">d10</button>
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d12')">d12</button>
-                <button type="button" class="btn" style="padding:5px;" onclick="rollSimple('d20')">d20</button>
+            <div class="section-text">
+                <div class="text-col">
+                    <label style="color:#4372e0; font-size:0.9em;">EQUIPMENT</label>
+                    <textarea name="equipment" class="text-area-fill">{{ char.equipment }}</textarea>
+                </div>
+                <div class="text-col">
+                    <label style="color:#4372e0; font-size:0.9em;">NOTES / ABILITIES</label>
+                    <textarea name="notes" class="text-area-fill">{{ char.notes }}</textarea>
+                </div>
             </div>
 
-            <br>
-            <label style="color:#4372e0;">EQUIPMENT</label>
-            <textarea name="equipment" rows="4">{{ char.equipment }}</textarea>
-            
-            <br><br>
-            <label style="color:#4372e0;">NOTES</label>
-            <textarea name="notes" rows="3">{{ char.notes }}</textarea>
-
-            <br><br>
-            <button type="submit" class="btn" style="width:100%; padding: 15px; background: #e68d09; color:#222;">SAVE CHANGES</button>
+            <div class="save-btn-wrapper">
+                <button type="submit" class="btn" style="width:100%; padding: 10px; background: #e68d09; color:#222;">SAVE DATA</button>
+            </div>
         </form>
     </div>
 
@@ -185,7 +199,20 @@
 
     <div class="col-log">
         <div class="log-header">COMMS LOG</div>
+        
         <div id="log-container">Loading...</div>
+        
+        <div class="dice-panel">
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d2')">D2</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d4')">D4</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d6')">D6</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d8')">D8</button>
+            
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d10')">D10</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d12')">D12</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d20')">D20</button>
+            <button type="button" class="dice-btn-small" onclick="rollSimple('d100')" style="font-size:0.7em;">D100</button>
+        </div>
     </div>
 
 </div>
@@ -200,6 +227,7 @@
         sendRoll(dice, 0, 'Dice Check');
     }
     async function sendRoll(dice, modifier, reason) {
+        // Подсветка кнопки
         await fetch('/roll_api', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
