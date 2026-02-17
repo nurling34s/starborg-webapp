@@ -7,23 +7,15 @@ import random
 ### DB Connectivity
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'starborg-secret-key-change-me'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-# Рекомендую использовать переменную окружения, но для начала можно вставить строку прямо так:
-# ВАЖНО: SQLAlchemy требует, чтобы строка начиналась с postgresql:// (с 'ql' на конце)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.nurling34s:w!55aQVM8/KB_dW@db.maeezsumaaijdlcpxeib.supabase.co:5432/postgres'
+# Берем настройки из облака, если их нет — ставим заглушки
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-123')
 
-# Если ты планируешь переезд на Render, они часто дают строку 'postgres://',
-# тогда нужно добавить фикс (SQLAlchemy 1.4+ не любит 'postgres://'):
-uri = "postgresql://postgres:w!55aQVM8/KB_dW@db.maeezsumaaijdlcpxeib.supabase.co:5432/postgres"
+uri = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
 # --- МОДЕЛИ ---
 
